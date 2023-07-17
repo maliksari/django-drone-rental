@@ -1,7 +1,6 @@
 import logging
 
-from rest_framework import generics
-from rest_framework.exceptions import NotFound
+from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
@@ -9,11 +8,10 @@ from rest_framework.parsers import MultiPartParser, FormParser
 
 
 from app.models import Category
-from app.serializers.category import CategoryProductSerializer, CategorySerializer
+from app.serializers.category import CategorySerializer
 from app.views.base import Auth 
 
 
-# Get an instance of a logger
 logger = logging.getLogger(__name__)
 
 
@@ -32,7 +30,7 @@ class CategoryView(Auth,ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data)
+        return Response(serializer.data,status=status.HTTP_201_CREATED)
        
 
     @swagger_auto_schema(operation_description="Category delete", tags=['Category'])
@@ -59,18 +57,3 @@ class CategoryView(Auth,ModelViewSet):
         category_instance.modified_by=request.user
         category_instance.save()
         return response
-
-
-class CategoryProductsAPIView(generics.RetrieveAPIView):
-    serializer_class = CategoryProductSerializer
-    lookup_field = 'id'
-
-    @swagger_auto_schema(operation_description="Category Products", tags=['Category'])
-    def get(self, request, category_id):
-        try:
-            category = Category.objects.prefetch_related(
-                'products').get(id=category_id)
-            serializer = self.serializer_class(category)
-            return Response(serializer.data)
-        except Category.DoesNotExist:
-            raise NotFound('Category not found')

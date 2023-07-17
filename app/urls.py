@@ -1,7 +1,7 @@
 from django.urls import path
 from rest_framework import routers
 
-from .views import register, category, product, brand,test
+from .views import register, category, product, brand, rental
 
 
 router = routers.DefaultRouter()
@@ -22,11 +22,10 @@ urlpatterns = [
 
     path('products/list', product.ProductListView.as_view(),
          name='product-list'),
-    path('test/rental', test.RentalCreateView.as_view(),
+    path('rental/', rental.RentalView.as_view(),
+         name='rental-created'),
+    path('rental/list', rental.RentalListView.as_view(),
          name='rental-list'),
-
-
-
 ]
 
 urlpatterns += router.urls

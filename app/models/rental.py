@@ -6,10 +6,10 @@ from app.models import BaseModel, Product
 
 
 class RentalPeriodChoices(models.TextChoices):
-    DAILY = 'daily', 'Daily'
-    WEEKLY = 'weekly', 'Weekly'
-    MONTHLY = 'monthly', 'Monthly'
-    YEARLY = 'yearly', 'Yearly'
+    DAILY = 'daily'
+    WEEKLY = 'weekly'
+    MONTHLY = 'monthly'
+    YEARLY = 'yearly'
 
 
 class RentalPeriod(BaseModel):
@@ -28,25 +28,19 @@ class Rental(BaseModel):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     is_completed = models.BooleanField(default=False)
+    is_approved = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Renter: {self.renter.username} - Product: {self.product.name}"
 
-    def clean(self):
-        # Ürünün kiralanabilirliğini kontrol et
-        if self.is_completed:
-            raise ValidationError('Product is already rented.')
-
-        # Başlangıç tarihinin bitiş tarihinden önce olduğunu kontrol et
-        if self.start_date >= self.end_date:
-            raise ValidationError('Start date must be before end date.')
-
-    def save(self, *args, **kwargs):
-        self.full_clean()  # Özel doğrulama kontrollerini gerçekleştir
-        super().save(*args, **kwargs)
-
     def approve_rental(self):
+        """ Müşteri tarfındaki onay """
         if self.is_completed:
-            raise ValidationError('Rental is already completed.')
+            raise ValidationError('İşlem daha önce onaylandı')
         self.is_completed = True
         self.save()
+
+    def approved(self):
+        """Kiralık talebini onayla"""
+        if self.is_approved:
+            raise ValidationError('İşlem daha önce onaylandı')

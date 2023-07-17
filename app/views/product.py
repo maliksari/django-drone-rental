@@ -97,3 +97,7 @@ class ProductListView(generics.ListAPIView):
         'model__name': ['exact'],
         'rental_periods__price': ['exact'],
     }
+
+    @swagger_auto_schema(tags=['Product'])
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)

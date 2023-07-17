@@ -6,3 +6,5 @@ drf-yasg==1.21.5
 psycopg2
 psycopg2-binary
 Pillow
+pytest
+pytest-django
