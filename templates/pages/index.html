@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %} Home {% endblock %}
+
+{% block content %}
+
+<h1>Home page</h1>
+
+<div class="container">
+    <h2>İHA</h2>
+
+   
+<div class="container mt-5">
+    <div class="mb-3">
+      <label for="categoryFilter" class="form-label">Kategori:</label>
+      <input type="text" class="form-control" id="categoryFilter">
+    </div>
+    <div class="mb-3">
+      <label for="brandFilter" class="form-label">Marka:</label>
+      <input type="text" class="form-control" id="brandFilter">
+    </div>
+    <div class="mb-3">
+      <label for="modelFilter" class="form-label">Model:</label>
+      <input type="text" class="form-control" id="modelFilter">
+    </div>
+    <div class="mb-3">
+      <label for="priceFilter" class="form-label">Fiyat:</label>
+      <input type="text" class="form-control" id="priceFilter">
+    </div>
+    <button type="button" class="btn btn-primary" id="filterButton">Filtrele</button>
+    <table id="dataTable" class="table table-striped">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Product Code</th>
+          <th>Description</th>
+          <th>Categories</th>
+          <th>Rental Periods</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- Bootstrap 5 JavaScript ve jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.11.4/js/dataTables.bootstrap5.min.js"></script>
+  
+  <script>
+    $(document).ready(function() {
+      var apiURL = 'http://127.0.0.1:8000/api/products/list';  // API URL
+      var token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjkwMDQ2ODE3LCJpYXQiOjE2ODk2MTQ4MTcsImp0aSI6ImQ5Nzg5YTg3ZGE5NTRjMjNiMDIxYTI1NWM3NjU2MWZjIiwidXNlcl9pZCI6MX0.Q4b9tZ4vUjDwxZrDcjuLYdAwk-3QEa6vbbI0j2ivQsE';
+      var csrfToken = 'kTWXp5Et0WeMa2vrkKMg2CjfwOmaT7BisiFHlJf9KZ4W7Mb3VQckbOhG60djFy20';
+  
+      var dataTable;
+  
+      function loadDataTable() {
+        if (dataTable) {
+          dataTable.destroy();
+        }
+  
+        dataTable = $('#dataTable').DataTable({
+          serverSide: true,
+          processing: true,
+          ajax: {
+            url: apiURL,
+            type: 'GET',
+            headers: {
+              'accept': 'application/json',
+              'Authorization': 'Bearer ' + token,
+              'X-CSRFToken': csrfToken
+            },
+            data: function(params) {
+              params.categories__category_code = $('#categoryFilter').val();
+              params.brand__name = $('#brandFilter').val();
+              params.model__name = $('#modelFilter').val();
+              params.rental_periods__price = $('#priceFilter').val();
+              params.page = 1;  // İlk sayfayı almak için
+            },
+            dataSrc: function(json) {
+              return json.results;  // Gelen verilerin 'results' özelliği
+            },
+            error: function(xhr, status, error) {
+              console.error('API isteği başarısız:', error);
+            }
+          },
+          columns: [
+            { data: 'id' },
+            { data: 'name' },
+            { data: 'product_code' },
+            { data: 'description' },
+            {
+              data: 'categories',
+              render: function(data) {
+                var categoryNames = data.map(function(category) {
+                  return category.name;
+                });
+                return categoryNames.join(', ');
+              }
+            },
+            {
+              data: 'rental_periods',
+              render: function(data) {
+                var rentalPeriods = data.map(function(period) {
+                  return period.rental_type + ' - ' + period.price;
+                });
+                return rentalPeriods.join('<br>');
+              }
+            }
+          ]
+        });
+      }
+  
+      // İlk yükleme
+      loadDataTable();
+  
+      // Filtreleme düğmesine tıklama olayı
+      $('#filterButton').on('click', function() {
+        loadDataTable();
+      });
+    });
+  </script>
+      
+
+
+{% endblock %}
