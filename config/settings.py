@@ -1,5 +1,6 @@
 import os
 
+from dotenv import load_dotenv
 from datetime import timedelta
 from pathlib import Path
 
@@ -11,13 +12,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-k$)u6d%rcgr3&mu2-tsg2dgi-2oz@0f*!&gnef851dveu)@0wt'
+# SECRET_KEY = 'django-insecure-k$)u6d%rcgr3&mu2-tsg2dgi-2oz@0f*!&gnef851dveu)@0wt'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# # SECURITY WARNING: don't run with debug turned on in production!
+# DEBUG = True
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = []
 
+dotenv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')
+load_dotenv(dotenv_path)
+
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+DEBUG = int(os.getenv("DEBUG"))
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS").split(" ")
 
 # Application definition
 
@@ -38,6 +46,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
