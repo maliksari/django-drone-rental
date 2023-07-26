@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     command:
       sh -c "python manage.py makemigrations &&
-             python manage.py migrate &&
+             python manage.py migrate && 
              python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./volumes:/usr/src/app
@@ -35,10 +35,23 @@ services:
       - "5432:5432"
     networks:
       - rental-network
-   
+  
+  nginx:
+    image: nginx:alpine
+    container_name: rental_nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro 
+      - static_volume:/usr/src/app/static
+    ports:
+      - "80:80" 
+    networks:
+      - rental-network
+    depends_on:
+      - web
 
 volumes:
   postgres_data:
+  static_volume:
 
 networks:
   rental-network:
