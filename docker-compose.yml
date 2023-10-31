@@ -10,7 +10,7 @@ services:
              python manage.py migrate && 
              python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - ./volumes:/usr/src/app
+      - ./volumes:/usr/src/rental/volumes
     ports:
       - 8000:8000
     networks:
@@ -41,7 +41,7 @@ services:
     container_name: rental_nginx
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro 
-      - static_volume:/usr/src/app/static
+      - static_volume:/usr/src/rental/static/
     ports:
       - "80:80" 
     networks:
@@ -52,6 +52,7 @@ services:
 volumes:
   postgres_data:
   static_volume:
+    
 
 networks:
   rental-network:
